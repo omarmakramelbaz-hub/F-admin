@@ -1,0 +1,2 @@
+E:/SmArt Vision/Projects/fasakhaninga/faskhangy_dashboard/android/app/.cxx/RelWithDebInfo/576z5696/x86_64/CMakeFiles/edit_cache.dir
+E:/SmArt Vision/Projects/fasakhaninga/faskhangy_dashboard/android/app/.cxx/RelWithDebInfo/576z5696/x86_64/CMakeFiles/rebuild_cache.dir
