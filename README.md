@@ -12,8 +12,8 @@ Flutter shell for the Fasakhansta admin dashboard at
 
 ## Checks
 
-Use Flutter with Dart 3.8 or newer, as required by the existing development
-dependencies.
+Use Flutter 3.47.0 (Dart 3.13.0), matching the code-quality workflow and the
+verified dependency lock file.
 
 ```sh
 flutter pub get
