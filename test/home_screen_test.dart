@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:web_view/home_screen.dart';
+import 'package:web_view/splash_screen.dart';
 
 void main() {
   late _FakeWebViewPlatform platform;
@@ -115,6 +116,69 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('loading and retry updates keep the same WebView', (
+    tester,
+  ) async {
+    await openDashboard(tester);
+    final webView = tester.widget<InAppWebView>(find.byType(InAppWebView));
+    final callbacks = platform.latest.params;
+
+    callbacks.onLoadStop!(platform.controller, null);
+    await tester.pump();
+    callbacks.onLoadStart!(platform.controller, null);
+    await tester.pump();
+    for (final progress in [10, 50, 90, 100]) {
+      callbacks.onProgressChanged!(platform.controller, progress);
+      await tester.pump();
+    }
+    callbacks.onReceivedError!(platform.controller, request(), networkError());
+    await tester.pump();
+    await tester.tap(find.text('إعادة المحاولة'));
+    await tester.pump();
+
+    expect(platform.creationCount, 1);
+    expect(platform.controllerPlatform.reloadCount, 1);
+    expect(
+      identical(tester.widget(find.byType(InAppWebView)), webView),
+      isTrue,
+    );
+  });
+
+  testWidgets('dashboard starts during splash and survives its reveal', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: SplashScreen()));
+    expect(platform.creationCount, 1);
+    expect(find.byType(Image), findsOneWidget);
+    final webViewState = tester.state(find.byType(InAppWebView));
+    await tester.tap(find.byType(InAppWebView), warnIfMissed: false);
+    expect(platform.tapCount, 0);
+    platform.latest.params.onLoadStop!(platform.controller, null);
+    await tester.pump();
+
+    await tester.pump(const Duration(milliseconds: 2999));
+    expect(find.byType(Image), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 1));
+
+    expect(find.byType(Image), findsNothing);
+    expect(find.byType(CupertinoActivityIndicator), findsNothing);
+    expect(platform.creationCount, 1);
+    expect(
+      identical(tester.state(find.byType(InAppWebView)), webViewState),
+      isTrue,
+    );
+    await tester.tap(find.byType(InAppWebView));
+    expect(platform.tapCount, 1);
+  });
+
+  testWidgets('closing splash cancels its pending reveal', (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: SplashScreen()));
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(seconds: 3));
+
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets(
     'callbacks after closing dashboard do not update disposed state',
     (tester) async {
@@ -143,20 +207,29 @@ class _FakeWebViewPlatform extends InAppWebViewPlatform {
     platform: controllerPlatform,
   );
   late _FakeWebView latest;
+  int creationCount = 0;
+  int tapCount = 0;
 
   @override
   PlatformInAppWebViewWidget createPlatformInAppWebViewWidget(
     PlatformInAppWebViewWidgetCreationParams params,
   ) {
-    return latest = _FakeWebView(params);
+    creationCount++;
+    return latest = _FakeWebView(params, onTap: () => tapCount++);
   }
 }
 
 class _FakeWebView extends PlatformInAppWebViewWidget {
-  _FakeWebView(super.params) : super.implementation();
+  _FakeWebView(super.params, {required this.onTap}) : super.implementation();
+
+  final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => const SizedBox.expand();
+  Widget build(BuildContext context) => GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: const SizedBox.expand(),
+      );
 
   @override
   T controllerFromPlatform<T>(PlatformInAppWebViewController controller) {

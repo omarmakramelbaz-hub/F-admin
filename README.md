@@ -6,7 +6,8 @@ Flutter shell for the Fasakhansta admin dashboard at
 ## Code layout
 
 - `lib/main.dart`: application and theme.
-- `lib/splash_screen.dart`: splash screen and navigation to the dashboard.
+- `lib/splash_screen.dart`: starts the live dashboard behind the existing
+  three-second splash, then reveals the same WebView without restarting it.
 - `lib/home_screen.dart`: WebView, loading indicator, and retry after a failed
   page load. Dashboard authentication and business logic live in the backend.
 
@@ -17,15 +18,16 @@ verified dependency lock file.
 
 ```sh
 flutter pub get
-dart format --output=none --set-exit-if-changed lib/home_screen.dart test
+dart format --output=none --set-exit-if-changed lib/home_screen.dart lib/splash_screen.dart test
 flutter analyze
 flutter test
 ```
 
 The tests substitute the WebView platform to check failed page loads, retries,
 resource errors, cancelled navigation, and late callbacks after closing the
-screen. Native Android/iOS builds and live dashboard flows still need device
-verification.
+screen. They also check that loading starts during the splash and that loading
+updates and splash completion preserve the existing WebView. Native Android/iOS
+builds and live dashboard flows still need device verification.
 
 ## Native configuration
 

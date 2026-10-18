@@ -11,11 +11,47 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   InAppWebViewController? _webViewController;
+  late final InAppWebView _webView;
   bool _isLoading = true;
   bool _hasLoadError = false;
 
+  @override
+  void initState() {
+    super.initState();
+    // Loading overlays can rebuild without reconstructing the native view.
+    _webView = _createWebView();
+  }
+
+  InAppWebView _createWebView() {
+    return InAppWebView(
+      initialUrlRequest: URLRequest(
+        url: WebUri('https://fasakhaninja.com/admin/login'),
+      ),
+      initialSettings: InAppWebViewSettings(
+        javaScriptEnabled: true,
+        allowFileAccess: true,
+        mediaPlaybackRequiresUserGesture: false,
+        allowsInlineMediaPlayback: true,
+        preferredContentMode: UserPreferredContentMode.MOBILE,
+      ),
+      onWebViewCreated: (controller) => _webViewController = controller,
+      onLoadStart: (_, __) => _startLoading(),
+      onLoadStop: (_, __) => _setLoading(false),
+      onProgressChanged: (_, progress) => _setLoading(progress < 100),
+      onReceivedError: (_, request, error) {
+        // Failed images and cancelled navigations must not hide a working
+        // dashboard. iOS may omit isForMainFrame for navigation errors.
+        if (request.isForMainFrame == false ||
+            error.type == WebResourceErrorType.CANCELLED) {
+          return;
+        }
+        _showLoadError();
+      },
+    );
+  }
+
   void _startLoading() {
-    if (!mounted) return;
+    if (!mounted || (_isLoading && !_hasLoadError)) return;
 
     setState(() {
       _isLoading = true;
@@ -30,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showLoadError() {
-    if (!mounted) return;
+    if (!mounted || (_hasLoadError && !_isLoading)) return;
 
     setState(() {
       _isLoading = false;
@@ -56,31 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: const CustomAppBar(),
       body: Stack(
         children: [
-          InAppWebView(
-            initialUrlRequest: URLRequest(
-              url: WebUri('https://fasakhaninja.com/admin/login'),
-            ),
-            initialSettings: InAppWebViewSettings(
-              javaScriptEnabled: true,
-              allowFileAccess: true,
-              mediaPlaybackRequiresUserGesture: false,
-              allowsInlineMediaPlayback: true,
-              preferredContentMode: UserPreferredContentMode.MOBILE,
-            ),
-            onWebViewCreated: (controller) => _webViewController = controller,
-            onLoadStart: (_, __) => _startLoading(),
-            onLoadStop: (_, __) => _setLoading(false),
-            onProgressChanged: (_, progress) => _setLoading(progress < 100),
-            onReceivedError: (_, request, error) {
-              // Failed images and cancelled navigations must not hide a working
-              // dashboard. iOS may omit isForMainFrame for navigation errors.
-              if (request.isForMainFrame == false ||
-                  error.type == WebResourceErrorType.CANCELLED) {
-                return;
-              }
-              _showLoadError();
-            },
-          ),
+          _webView,
           if (_hasLoadError)
             Positioned.fill(
               child: ColoredBox(

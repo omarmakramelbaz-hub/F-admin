@@ -29,4 +29,4 @@ jobs:
       - name: Run tests
         run: flutter test --no-pub
       - name: Check formatting of reviewed files
-        run: dart format --output=none --set-exit-if-changed lib/home_screen.dart test/home_screen_test.dart
+        run: dart format --output=none --set-exit-if-changed lib/home_screen.dart lib/splash_screen.dart test/home_screen_test.dart
