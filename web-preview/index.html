@@ -4,12 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#ff7a00">
+  <link rel="preload" as="image" href="/f-admin-webview-opening.gif" fetchpriority="high">
   <title>Fasakhansta Dashboard</title>
   <style>
     :root { color-scheme: light; font-family: Tahoma, Arial, sans-serif; color: #28313a; background: #fff; }
     * { box-sizing: border-box; }
     html, body { width: 100%; height: 100%; margin: 0; }
     body { overflow: hidden; }
+    .opening { position: fixed; inset: 0; z-index: 10; display: block; width: 100%; height: 100vh; height: 100dvh; overflow: hidden; background: #F47221; }
+    .opening img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; min-width: 0; min-height: 0; object-fit: contain; object-position: center; }
     button, a { -webkit-tap-highlight-color: transparent; }
     button { font: inherit; }
     .app { display: grid; grid-template-rows: calc(10px + env(safe-area-inset-top, 0px)) minmax(0, 1fr); height: 100vh; height: 100dvh; }
@@ -35,9 +38,12 @@
     @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
   </style>
 </head>
-<body data-release="f-admin-webview-20261111">
-  <a class="direct-link" href="/admin/login" target="_top">فتح لوحة التحكم مباشرة</a>
-  <main class="app" aria-label="لوحة تحكم فسخانستا">
+<body data-release="f-admin-webview-opening-20261111">
+  <div class="opening" id="opening" data-opening-duration-ms="3000" role="status" aria-label="جارٍ فتح لوحة تحكم فسخانستا">
+    <img id="opening-image" src="/f-admin-webview-opening.gif" alt="" aria-hidden="true" loading="eager" fetchpriority="high">
+  </div>
+  <a class="direct-link" id="direct-link" href="/admin/login" target="_top">فتح لوحة التحكم مباشرة</a>
+  <main class="app" id="app" aria-label="لوحة تحكم فسخانستا">
     <div class="brand-bar" aria-hidden="true"></div>
     <div class="viewport">
       <iframe id="dashboard" src="/admin/login" title="Fasakhansta Dashboard" allow="camera 'self'; microphone 'self'; geolocation 'self'; clipboard-read 'self'; clipboard-write 'self'" aria-busy="true"></iframe>
@@ -56,7 +62,7 @@
     </div>
   </main>
   <noscript>
-    <style>.loading { display: none; }</style>
+    <style>.opening, .loading { display: none; }</style>
   </noscript>
   <script>
     (() => {
@@ -67,8 +73,33 @@
       const message = document.getElementById('message');
       const actions = document.getElementById('actions');
       const status = document.getElementById('status');
+      const app = document.getElementById('app');
+      const directLink = document.getElementById('direct-link');
+      const opening = document.getElementById('opening');
+      const openingImage = document.getElementById('opening-image');
       let timer;
       let hasLoadedOnce = false;
+      let openingTimer;
+      let openingActive = true;
+
+      function finishOpening() {
+        if (!openingActive) return;
+        openingActive = false;
+        window.clearTimeout(openingTimer);
+        opening.hidden = true;
+        app.inert = false;
+        app.removeAttribute('aria-hidden');
+        directLink.inert = false;
+        directLink.removeAttribute('aria-hidden');
+      }
+
+      app.inert = true;
+      app.setAttribute('aria-hidden', 'true');
+      directLink.inert = true;
+      directLink.setAttribute('aria-hidden', 'true');
+      openingImage.addEventListener('error', finishOpening);
+      openingTimer = window.setTimeout(finishOpening, 3000);
+      if (openingImage.complete && openingImage.naturalWidth === 0) finishOpening();
 
       function loading() {
         window.clearTimeout(timer);
