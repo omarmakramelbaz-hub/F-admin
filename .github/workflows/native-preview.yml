@@ -44,7 +44,10 @@ jobs:
           channel: stable
           cache: true
       - name: Install the declared Android SDK components
-        run: sdkmanager "platforms;android-35" "build-tools;35.0.0" "ndk;27.0.12077973"
+        run: |
+          android_sdk_manager="${ANDROID_HOME:?}/cmdline-tools/latest/bin/sdkmanager"
+          test -x "$android_sdk_manager"
+          "$android_sdk_manager" --sdk_root="$ANDROID_HOME" "platforms;android-35" "build-tools;35.0.0" "ndk;27.0.12077973"
       - name: Resolve locked Flutter dependencies
         run: flutter pub get --enforce-lockfile
       - name: Analyze and test

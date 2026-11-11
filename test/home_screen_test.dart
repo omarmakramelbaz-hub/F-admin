@@ -156,7 +156,10 @@ void main() {
       platform.latest.params.initialUrlRequest?.url.toString(),
       'https://fasakhaninja.com/f-admin-webview.html',
     );
-    expect(platform.latest.params.initialSettings?.transparentBackground, isTrue);
+    expect(
+      platform.latest.params.initialSettings?.transparentBackground,
+      isTrue,
+    );
     final webViewState = tester.state(find.byType(InAppWebView));
     await tester.tap(find.byType(InAppWebView));
     expect(platform.tapCount, 1);
