@@ -1,4 +1,4 @@
-name: Native preview
+name: Native store validation
 
 on:
   push:
@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  android-preview:
+  android-store-build:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -47,20 +47,49 @@ jobs:
         run: |
           android_sdk_manager="${ANDROID_HOME:?}/cmdline-tools/latest/bin/sdkmanager"
           test -x "$android_sdk_manager"
-          "$android_sdk_manager" --sdk_root="$ANDROID_HOME" "platforms;android-35" "build-tools;35.0.0" "ndk;27.0.12077973"
+          "$android_sdk_manager" --sdk_root="$ANDROID_HOME" "platforms;android-36" "build-tools;36.0.0" "ndk;27.0.12077973"
       - name: Resolve locked Flutter dependencies
         run: flutter pub get --enforce-lockfile
       - name: Analyze and test
         run: |
           flutter analyze --no-pub
           flutter test --no-pub
-      - name: Build the side-by-side preview APK
-        run: flutter build apk --debug --no-pub
-      - name: Upload preview APK
+      - name: Build the signed release app bundle
+        run: flutter build appbundle --release --no-pub
+      - name: Validate the signed store bundle
+        run: |
+          bundletool_jar="$RUNNER_TEMP/bundletool-all-1.18.3.jar"
+          curl --fail --silent --show-error --location --max-time 120 --output "$bundletool_jar" https://github.com/google/bundletool/releases/download/1.18.3/bundletool-all-1.18.3.jar
+          printf '%s  %s\n' 'a099cfa1543f55593bc2ed16a70a7c67fe54b1747bb7301f37fdfd6d91028e29' "$bundletool_jar" | sha256sum --check --status
+          bundle_paths=(build/app/outputs/bundle/release/*.aab)
+          test "${#bundle_paths[@]}" -eq 1
+          bundle="${bundle_paths[0]}"
+          test -f "$bundle"
+          jarsigner -J-Duser.language=en -J-Duser.country=US -verify "$bundle" > "$RUNNER_TEMP/aab-signature-verification.txt"
+          grep -qx 'jar verified.' "$RUNNER_TEMP/aab-signature-verification.txt"
+          keytool -J-Duser.language=en -J-Duser.country=US -printcert -jarfile "$bundle" | python -c 'import re, sys; matches = re.findall(r"(?m)^\s*SHA256:\s*((?:[0-9A-F]{2}:){31}[0-9A-F]{2})\s*$", sys.stdin.read()); assert matches, "Cannot identify the AAB signer certificate SHA-256"; print("AAB upload signer certificate SHA-256: " + matches[0])'
+          java -jar "$bundletool_jar" validate --bundle="$bundle"
+          java -jar "$bundletool_jar" dump manifest --bundle="$bundle" --module=base > "$RUNNER_TEMP/aab-manifest.xml"
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+          manifest = ET.parse(Path(os.environ['RUNNER_TEMP']) / 'aab-manifest.xml').getroot()
+          android = '{http://schemas.android.com/apk/res/android}'
+          if manifest.attrib.get('package') != 'com.smartvision.fasakhainista_dashboard':
+              raise SystemExit('Store bundle package does not match the existing app.')
+          sdk = manifest.find('uses-sdk')
+          if sdk is None or sdk.attrib.get(android + 'targetSdkVersion') != '36':
+              raise SystemExit('Store bundle must target Android API 36.')
+          print('Signed AAB verified: com.smartvision.fasakhainista_dashboard; target API 36; version '
+                + str(manifest.attrib.get(android + 'versionName')) + ' ('
+                + str(manifest.attrib.get(android + 'versionCode')) + ').')
+          PY
+      - name: Upload validated store app bundle
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: fasakhansta-dashboard-preview-${{ github.sha }}
-          path: build/app/outputs/flutter-apk/app-debug.apk
+          name: fasakhansta-dashboard-store-aab-${{ github.sha }}
+          path: build/app/outputs/bundle/release/*.aab
           if-no-files-found: error
           retention-days: 7
   ios-compile:
