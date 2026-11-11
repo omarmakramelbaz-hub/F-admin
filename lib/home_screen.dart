@@ -25,9 +25,10 @@ class _HomeScreenState extends State<HomeScreen> {
   InAppWebView _createWebView() {
     return InAppWebView(
       initialUrlRequest: URLRequest(
-        url: WebUri('https://fasakhaninja.com/admin/login'),
+        url: WebUri('https://fasakhaninja.com/f-admin-webview.html'),
       ),
       initialSettings: InAppWebViewSettings(
+        transparentBackground: true,
         javaScriptEnabled: true,
         allowFileAccess: true,
         mediaPlaybackRequiresUserGesture: false,
@@ -89,8 +90,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar(),
+      backgroundColor: const Color(0xFF091320),
       body: Stack(
+        fit: StackFit.expand,
         children: [
           _webView,
           if (_hasLoadError)
@@ -119,39 +121,18 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           if (_isLoading)
-            const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CupertinoActivityIndicator(radius: 15),
-                  SizedBox(height: 10),
-                ],
+            const Positioned(
+              top: 12,
+              right: 12,
+              child: IgnorePointer(
+                child: CupertinoActivityIndicator(
+                  radius: 10,
+                  color: Color(0xFF28C5E9),
+                ),
               ),
             ),
         ],
       ),
     );
   }
-}
-
-class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const CustomAppBar({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return AppBar(
-      flexibleSpace: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xffFD7201), Color(0xffFF9D4D)],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
-  Size get preferredSize => const Size.fromHeight(10);
 }

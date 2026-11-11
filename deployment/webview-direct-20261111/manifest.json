@@ -1,0 +1,14 @@
+[
+  {
+    "source_path": "assets/dashboard-icon.png",
+    "target_path": "public/f-admin-dashboard-icon.png",
+    "sha256": "f006ba15ad15de9f51c7179e4556b3ac750cd758a033fa9328a155f7e00e3168",
+    "baseline_sha256": null
+  },
+  {
+    "source_path": "web-preview/index.html",
+    "target_path": "public/f-admin-webview.html",
+    "sha256": "22df883f48f714d32a034eb62c5ae71e3a5a93f5d879be686c3d01094ed9a6f3",
+    "baseline_sha256": "b0b75f380fbdedea2a75d4c70388614ef56bee6d8f0a0fcd9c87458cf65288a0"
+  }
+]

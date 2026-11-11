@@ -25,12 +25,12 @@ flutter:
 
 
 flutter_native_splash:
-  color: "#e85504"
-  image: assets/transparent.png
+  color: "#091320"
+  image: assets/dashboard-icon.png
   android_12:
-    color: "#e85504"
-    image: assets/transparent.png
+    color: "#091320"
+    image: assets/dashboard-icon.png
   android: true
   ios: true
-  color_android: "#e85504"
-  color_ios: "#e85504"
+  color_android: "#091320"
+  color_ios: "#091320"

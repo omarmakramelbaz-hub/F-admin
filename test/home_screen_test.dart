@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:web_view/home_screen.dart';
-import 'package:web_view/splash_screen.dart';
+import 'package:web_view/main.dart';
 
 void main() {
   late _FakeWebViewPlatform platform;
@@ -144,21 +144,26 @@ void main() {
     );
   });
 
-  testWidgets('dashboard starts during splash and survives its reveal', (
+  testWidgets('app opens the dashboard without a splash or app bar', (
     tester,
   ) async {
-    await tester.pumpWidget(const MaterialApp(home: SplashScreen()));
+    await tester.pumpWidget(const MyApp());
     expect(platform.creationCount, 1);
-    expect(find.byType(Image), findsOneWidget);
+    expect(find.byType(HomeScreen), findsOneWidget);
+    expect(find.byType(Image), findsNothing);
+    expect(find.byType(AppBar), findsNothing);
+    expect(
+      platform.latest.params.initialUrlRequest?.url.toString(),
+      'https://fasakhaninja.com/f-admin-webview.html',
+    );
+    expect(platform.latest.params.initialSettings?.transparentBackground, isTrue);
     final webViewState = tester.state(find.byType(InAppWebView));
-    await tester.tap(find.byType(InAppWebView), warnIfMissed: false);
-    expect(platform.tapCount, 0);
+    await tester.tap(find.byType(InAppWebView));
+    expect(platform.tapCount, 1);
     platform.latest.params.onLoadStop!(platform.controller, null);
     await tester.pump();
 
-    await tester.pump(const Duration(milliseconds: 2999));
-    expect(find.byType(Image), findsOneWidget);
-    await tester.pump(const Duration(milliseconds: 1));
+    await tester.pump(const Duration(seconds: 3));
 
     expect(find.byType(Image), findsNothing);
     expect(find.byType(CupertinoActivityIndicator), findsNothing);
@@ -168,15 +173,7 @@ void main() {
       isTrue,
     );
     await tester.tap(find.byType(InAppWebView));
-    expect(platform.tapCount, 1);
-  });
-
-  testWidgets('closing splash cancels its pending reveal', (tester) async {
-    await tester.pumpWidget(const MaterialApp(home: SplashScreen()));
-    await tester.pumpWidget(const SizedBox.shrink());
-    await tester.pump(const Duration(seconds: 3));
-
-    expect(tester.takeException(), isNull);
+    expect(platform.tapCount, 2);
   });
 
   testWidgets(
