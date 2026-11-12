@@ -1,0 +1,14 @@
+[
+  {
+    "source_path": "assets/dashGif.gif",
+    "target_path": "public/f-admin-webview-opening.gif",
+    "sha256": "d914b04b86e3814c32a409fe42d74414bf82d3f035e187acaad5af96a66a76eb",
+    "baseline_sha256": null
+  },
+  {
+    "source_path": "web-preview/index.html",
+    "target_path": "public/f-admin-webview.html",
+    "sha256": "b0b75f380fbdedea2a75d4c70388614ef56bee6d8f0a0fcd9c87458cf65288a0",
+    "baseline_sha256": "979809affb536663211ad65149747ddaaff780a12659b22144cd38569ad5fa8a"
+  }
+]

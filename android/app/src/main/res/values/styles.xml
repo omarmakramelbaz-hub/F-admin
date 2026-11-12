@@ -1,20 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Splash screen theme -->
+    <!-- OS launch frame only; no custom splash route or delay. -->
     <style name="LaunchTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:windowBackground">@color/splashBackground</item>
+        <item name="android:windowBackground">#091320</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:forceDarkAllowed">false</item>
-        <item name="android:windowFullscreen">false</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">false</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">#091320</item>
+        <item name="android:navigationBarColor">#091320</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
     </style>
-    <!-- Main app theme -->
+    <!-- Retain adjustResize for login. MainActivity hides the system bars. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Your main app theme settings -->
+        <item name="android:windowBackground">#091320</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:forceDarkAllowed">false</item>
+        <item name="android:statusBarColor">#091320</item>
+        <item name="android:navigationBarColor">#091320</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
     </style>
-    <!-- Colors -->
-    <color name="splashBackground">#FD7201</color>
-    <!-- Solid orange -->
-    <color name="primaryColor">#FD7201</color>
+    <style name="NormalTheme" parent="AppTheme"/>
+    <color name="splashBackground">#091320</color>
+    <color name="primaryColor">#091320</color>
 </resources>

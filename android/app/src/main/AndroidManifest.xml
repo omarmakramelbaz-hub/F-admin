@@ -23,7 +23,7 @@
     </queries>
 
     <application
-        android:label="Fasakhansta Dashboard"
+        android:label="GO ERP"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:hardwareAccelerated="true"

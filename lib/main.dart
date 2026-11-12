@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'splash_screen.dart';
+import 'home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,10 +14,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: "Faskhangy Dashboard",
+      title: 'GO ERP',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primaryColor: const Color(0xFFFFFFFF), scaffoldBackgroundColor: const Color(0xFFFFFFFF)),
-      home: const SplashScreen(),
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: const Color(0xFF091320),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF28C5E9),
+          brightness: Brightness.dark,
+        ),
+      ),
+      home: const HomeScreen(),
     );
   }
 }
