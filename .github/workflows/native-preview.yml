@@ -78,6 +78,11 @@ jobs:
           android = '{http://schemas.android.com/apk/res/android}'
           if manifest.attrib.get('package') != 'com.smartvision.fasakhainista_dashboard':
               raise SystemExit('Store bundle package does not match the existing app.')
+          if manifest.attrib.get(android + 'versionCode') != '16':
+              raise SystemExit('Store bundle must use the new GO ERP build number 16.')
+          application = manifest.find('application')
+          if application is None or application.attrib.get(android + 'label') != 'GO ERP':
+              raise SystemExit('The installed application must be named GO ERP.')
           sdk = manifest.find('uses-sdk')
           if sdk is None or sdk.attrib.get(android + 'targetSdkVersion') != '36':
               raise SystemExit('Store bundle must target Android API 36.')
