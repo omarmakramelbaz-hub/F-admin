@@ -1,0 +1,55 @@
+name: Upload to Google Play
+
+# Sends an already-built, signed AAB from a finished build run to Google Play.
+# Needs the repository secret PLAY_SERVICE_ACCOUNT_JSON (a Play Console service account key).
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: ID of the finished build run that produced the AAB (from its URL)
+        required: true
+      track:
+        description: Play track
+        type: choice
+        options: [production, beta, alpha, internal]
+        default: production
+      status:
+        description: draft = review it in Play Console first; completed = send for review / publish
+        type: choice
+        options: [draft, completed]
+        default: draft
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Download the AAB from the build run
+        uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ inputs.run_id }}
+          github-token: ${{ github.token }}
+          pattern: 'fasakhansta-dashboard-store-aab-*'
+          path: dl
+
+      - name: Find exactly one AAB
+        id: aab
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(find dl -name '*.aab')
+          if [ "${#files[@]}" -ne 1 ]; then find dl; echo "Expected exactly one .aab, found ${#files[@]}"; exit 1; fi
+          echo "path=${files[0]}" >> "$GITHUB_OUTPUT"
+          echo "Uploading ${files[0]}"
+
+      - name: Upload to Google Play
+        uses: r0adkll/upload-google-play@v1.1.3
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.smartvision.fasakhainista_dashboard
+          releaseFiles: ${{ steps.aab.outputs.path }}
+          track: ${{ inputs.track }}
+          status: ${{ inputs.status }}
