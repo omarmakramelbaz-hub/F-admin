@@ -20,7 +20,7 @@ void main() {
 
   WebResourceRequest request({bool? isForMainFrame = true}) {
     return WebResourceRequest(
-      url: WebUri('https://fasakhaninja.com/admin/login'),
+      url: WebUri('https://faskhansta.com/admin/login'),
       isForMainFrame: isForMainFrame,
     );
   }
@@ -154,7 +154,7 @@ void main() {
     expect(find.byType(AppBar), findsNothing);
     expect(
       platform.latest.params.initialUrlRequest?.url.toString(),
-      'https://fasakhaninja.com/f-admin-webview.html',
+      'https://faskhansta.com/f-admin-webview.html',
     );
     expect(
       platform.latest.params.initialSettings?.transparentBackground,
