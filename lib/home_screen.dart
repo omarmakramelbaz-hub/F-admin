@@ -25,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   InAppWebView _createWebView() {
     return InAppWebView(
       initialUrlRequest: URLRequest(
-        url: WebUri('https://fasakhaninja.com/admin/login'),
+        url: WebUri('https://faskhansta.com/admin/login'),
       ),
       initialSettings: InAppWebViewSettings(
         javaScriptEnabled: true,
