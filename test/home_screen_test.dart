@@ -20,7 +20,7 @@ void main() {
 
   WebResourceRequest request({bool? isForMainFrame = true}) {
     return WebResourceRequest(
-      url: WebUri('https://fasakhaninja.com/admin/login'),
+      url: WebUri('https://faskhansta.com/admin/login'),
       isForMainFrame: isForMainFrame,
     );
   }
