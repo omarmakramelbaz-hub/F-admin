@@ -25,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   InAppWebView _createWebView() {
     return InAppWebView(
       initialUrlRequest: URLRequest(
-        url: WebUri('https://fasakhaninja.com/f-admin-webview.html'),
+        url: WebUri('https://faskhansta.com/f-admin-webview.html'),
       ),
       initialSettings: InAppWebViewSettings(
         transparentBackground: true,
